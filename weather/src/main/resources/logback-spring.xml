@@ -1,22 +1,73 @@
 <?xml version="1.0" encoding="UTF-8" ?>
 <configuration>
+
+    <property name="CONSOLE_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS} %magenta([%thread]) %highlight([%-3level]) %logger{5} - %msg %n" />
+    <property name="ROLLING_PATTERN" value="%d{yyyy-MM-dd HH:mm:ss.SSS}  %logger{5} - %msg %n" />
+
+    <property name="LOG_NAME_PATTERN" value="application-%d{yyyy-MM-dd-HH}.%i.log" />
     <property name="LOGS_PATH" value="./logs"/>
+    <property name="FILE_NAME" value="application.log" />
+
     <property name="LOGS_LEVEL" value="INFO"/>
-    <appender name="FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
-        <file>${LOGS_PATH}/log_file.log</file>
-        <encoder class="ch.qos.logback.classic.encoder.PatternLayoutEncoder">
-            <pattern>[%d{yyyy-MM-dd HH:mm:ss}:%-3relative][%thread] %-5level %logger{35} - %msg%n</pattern>
-            <charset>UTF-8</charset>
+
+    <property name="MAX_FILE_SIZE" value="10MB" />
+    <property name="TOTAL_SIZE" value="60MB" />
+    <property name="MAX_HISTORY" value="5" />
+
+
+    <!-- Console appender 설정 -->
+    <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender">
+        <encoder>
+            <Pattern>${CONSOLE_PATTERN}</Pattern>
         </encoder>
-        <rollingPolicy class="ch.qos.logback.core.rolling.TimeBasedRollingPolicy">
-            <fileNamePattern>${LOGS_PATH}/%d{yyyy-MM-dd}_%i.log</fileNamePattern>
-            <timeBasedFileNamingAndTriggeringPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedFNATP">
-                <maxFileSize>10MB</maxFileSize>
-            </timeBasedFileNamingAndTriggeringPolicy>
-            <maxHistory>60</maxHistory>
+    </appender>
+
+
+    <appender name="ROLLING_LOG_FILE" class="ch.qos.logback.core.rolling.RollingFileAppender">
+        <encoder>
+            <pattern>${ROLLING_PATTERN}</pattern>
+        </encoder>
+        <file>${LOGS_PATH}/${FILE_NAME}</file>
+        <rollingPolicy class="ch.qos.logback.core.rolling.SizeAndTimeBasedRollingPolicy">
+            <fileNamePattern>${LOGS_PATH}/${LOG_NAME_PATTERN}</fileNamePattern>
+            <maxHistory>${MAX_HISTORY}</maxHistory>
+            <maxFileSize>${MAX_FILE_SIZE}</maxFileSize>
+            <totalSizeCap>${TOTAL_SIZE}</totalSizeCap>
         </rollingPolicy>
     </appender>
-    <root level="${LOGS_LEVEL}">
-        <appender-ref ref="FILE"/>
+
+    <logger name="jdbc" level="INFO" additive="false">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ROLLING_LOG_FILE"/>
+    </logger>
+    <logger name="jdbc.sqlonly" level="DEBUG" additive="false" >
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ROLLING_LOG_FILE"/>
+    </logger>
+    <logger name="jdbc.sqltiming" level="OFF" additive="false" >
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ROLLING_LOG_FILE"/>
+    </logger>
+    <logger name="org.hibernate.SQL" level="DEBUG" additive="false">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ROLLING_LOG_FILE"/>
+    </logger>
+    <logger name="zero.weather.controller" level="INFO" additive="true" >
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ROLLING_LOG_FILE"/>
+    </logger>
+    <logger name="zero.weather.service" level="DEBUG" additive="false" >
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ROLLING_LOG_FILE"/>
+    </logger>
+    <logger name="zero.weather.domain" level="DEBUG" additive="false" >
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ROLLING_LOG_FILE"/>
+    </logger>
+
+
+    <root level="INFO">
+        <appender-ref ref="STDOUT"/>
+        <appender-ref ref="ROLLING_LOG_FILE"/>
     </root>
 </configuration>
