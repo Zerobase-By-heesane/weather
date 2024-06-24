@@ -1,12 +1,13 @@
 package zero.weather.service;
 
-
 import lombok.RequiredArgsConstructor;
 import org.json.simple.JSONArray;
 import org.json.simple.JSONObject;
 import org.json.simple.parser.JSONParser;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Isolation;
+import org.springframework.transaction.annotation.Transactional;
 import zero.weather.domain.Diary;
 import zero.weather.repository.DiaryRepository;
 
@@ -21,6 +22,7 @@ import java.util.Map;
 
 @RequiredArgsConstructor
 @Service
+@Transactional(readOnly = true)
 public class DiaryService {
 
     private final DiaryRepository diaryRepository;
@@ -28,6 +30,7 @@ public class DiaryService {
     @Value("${weather.api.key}")
     private String apiKey;
 
+    @Transactional(readOnly = false,isolation = Isolation.SERIALIZABLE)
     public void createDiary(LocalDate date, String text) {
         String weatherString = getWeatherString();
 
@@ -67,7 +70,7 @@ public class DiaryService {
                 content.append(inputLine);
             }
             br.close();
-            System.out.println(content.toString());
+            System.out.println(content);
             return content.toString();
         } catch (Exception e) {
             return "Malformed URL";
@@ -97,6 +100,7 @@ public class DiaryService {
         return resultMap;
     }
 
+    @Transactional(readOnly = true)
     public List<Diary> readDiary(LocalDate date) {
         return diaryRepository.findAllByDate(date);
     }
