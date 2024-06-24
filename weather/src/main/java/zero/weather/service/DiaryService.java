@@ -16,6 +16,7 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.time.LocalDate;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 @RequiredArgsConstructor
@@ -94,5 +95,24 @@ public class DiaryService {
         resultMap.put("temp", main.get("temp"));
 
         return resultMap;
+    }
+
+    public List<Diary> readDiary(LocalDate date) {
+        return diaryRepository.findAllByDate(date);
+    }
+
+    public List<Diary> readDiaries(LocalDate fromDate, LocalDate toDate) {
+        return diaryRepository.findAllByDateBetween(fromDate, toDate);
+    }
+
+    public void updateDiary(LocalDate date, String text) {
+        Diary diary = diaryRepository.getFirstByDate(date);
+        diary.setText(text);
+        diaryRepository.save(diary);
+    }
+
+    public void deleteDiary(LocalDate date) {
+        Diary diary = diaryRepository.getFirstByDate(date);
+        diaryRepository.delete(diary);
     }
 }
